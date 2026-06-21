@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kanishka – Blood Group Directory</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red:     #C0392B;
+    --red-lt:  #F9EBEA;
+    --red-mid: #E74C3C;
+    --ink:     #1A1A2E;
+    --muted:   #6B7280;
+    --border:  #E5E7EB;
+    --bg:      #F8F9FA;
+    --white:   #FFFFFF;
+    --radius:  10px;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--red);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .drop-icon {
+    width: 30px; height: 30px;
+    background: var(--white);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .drop-icon svg { width: 16px; height: 16px; }
+  header h1 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: 0;
+    line-height: 1.3;
+  }
+  header p {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.75);
+    margin-top: 2px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* FILTER BAR */
+  .filter-section {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .filter-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .radio-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .radio-group input[type="radio"] { display: none; }
+  .radio-group label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px; height: 36px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: var(--white);
+    user-select: none;
+  }
+  .radio-group label:hover {
+    border-color: var(--red-mid);
+    color: var(--red);
+    background: var(--red-lt);
+  }
+  .radio-group input[type="radio"]:checked + label {
+    background: var(--red);
+    border-color: var(--red);
+    color: var(--white);
+    box-shadow: 0 2px 8px rgba(192,57,43,0.3);
+  }
+  .btn-reset {
+    margin-left: auto;
+    padding: 8px 20px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .btn-reset:hover {
+    border-color: var(--red-mid);
+    color: var(--red);
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stats-bar span {
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .stats-bar strong {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .active-filter-badge {
+    display: none;
+    background: var(--red-lt);
+    color: var(--red);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(192,57,43,0.2);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    padding: 0 32px 40px;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  thead tr {
+    background: var(--ink);
+  }
+  thead th {
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.7);
+  }
+  thead th:last-child { text-align: center; }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--red-lt); }
+  tbody td {
+    padding: 13px 20px;
+    font-size: 0.88rem;
+  }
+  .sl { color: var(--muted); font-size: 0.78rem; width: 48px; }
+  .name-cell { font-weight: 500; }
+  .bg-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .bg-pos { background: #FEF3C7; color: #92400E; }
+  .bg-neg { background: #DBEAFE; color: #1E40AF; }
+  .bg-special { background: #F3E8FF; color: #6B21A8; }
+  .bg-unknown { background: #F3F4F6; color: #9CA3AF; }
+
+  td:last-child { text-align: center; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    display: none;
+    text-align: center;
+    padding: 60px 32px;
+  }
+  .empty-state .big { font-size: 2.5rem; margin-bottom: 12px; }
+  .empty-state p { color: var(--muted); font-size: 0.9rem; }
+
+  @media (max-width: 600px) {
+    header { padding: 20px 16px; }
+    .filter-section { padding: 16px; gap: 12px; }
+    .table-wrap { padding: 0 16px 32px; }
+    .stats-bar { padding: 12px 16px; }
+    .btn-reset { margin-left: 0; }
+    .radio-group label { width: 46px; height: 34px; font-size: 0.78rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="drop-icon">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M12 2C12 2 5 10.5 5 15a7 7 0 0014 0C19 10.5 12 2 12 2z" fill="#C0392B"/>
+      <path d="M9 15a3 3 0 006 0" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div>
+    <h1>Kanishka Blood Group</h1>
+    <p>Member Directory</p>
+  </div>
+</header>
+
+<div class="filter-section">
+  <span class="filter-label">Filter</span>
+  <div class="radio-group" id="bgFilter">
+    <input type="radio" name="bg" id="f-ap" value="A+"><label for="f-ap">A+</label>
+    <input type="radio" name="bg" id="f-an" value="A−"><label for="f-an">A−</label>
+    <input type="radio" name="bg" id="f-bp" value="B+"><label for="f-bp">B+</label>
+    <input type="radio" name="bg" id="f-bn" value="B−"><label for="f-bn">B−</label>
+    <input type="radio" name="bg" id="f-abp" value="AB+"><label for="f-abp">AB+</label>
+    <input type="radio" name="bg" id="f-abn" value="AB−"><label for="f-abn">AB−</label>
+    <input type="radio" name="bg" id="f-op" value="O+"><label for="f-op">O+</label>
+    <input type="radio" name="bg" id="f-on" value="O−"><label for="f-on">O−</label>
+  </div>
+  <button class="btn-reset" id="resetBtn">Reset</button>
+</div>
+
+<div class="stats-bar">
+  <strong id="countDisplay">—</strong>
+  <span>members</span>
+  <span class="active-filter-badge" id="filterBadge"></span>
+</div>
+
+<div class="table-wrap">
+  <table id="mainTable">
+    <thead>
+      <tr>
+        <th class="sl">#</th>
+        <th>Name</th>
+        <th>Blood Group</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <div class="empty-state" id="emptyState">
+    <div class="big">🩸</div>
+    <p>No members found with this blood group.</p>
+  </div>
+</div>
+
+<script>
+const members = [
+  { name: "Adarsh K P", bg: "B+" },
+  { name: "Aiswarya", bg: "A+" },
+  { name: "Ajeesh Mangalath", bg: "O+" },
+  { name: "Akhil A G", bg: "AB+" },
+  { name: "Akhilesh K S", bg: "A+" },
+  { name: "Ambadi P A", bg: "O+" },
+  { name: "Amruthakrishna N U", bg: "B+" },
+  { name: "Anil Kumar E G", bg: "O+" },
+  { name: "Anjali Sibin", bg: "—" },
+  { name: "Anju Krishna N B", bg: "O+" },
+  { name: "Anu Krishna N B", bg: "O+" },
+  { name: "Anu Ratheesh", bg: "B+" },
+  { name: "Anupama K G", bg: "A+" },
+  { name: "Arjun K B", bg: "O+" },
+  { name: "Arjun N B", bg: "O+" },
+  { name: "Arsha", bg: "O+" },
+  { name: "Arun Ramanunni", bg: "A+" },
+  { name: "Ashly Mohan", bg: "O+" },
+  { name: "Ashwin", bg: "O+" },
+  { name: "Aswanth K S", bg: "A+" },
+  { name: "Athulya Raj K", bg: "O+" },
+  { name: "Azad M Ramesh", bg: "A+" },
+  { name: "Been Sajith", bg: "B+" },
+  { name: "Bigin Babu", bg: "O+" },
+  { name: "Bijith N R", bg: "A+" },
+  { name: "Biju V P", bg: "A+" },
+  { name: "Bindhu Sunil", bg: "—" },
+  { name: "Brijesh K R", bg: "O+" },
+  { name: "Chandu Prasad N S", bg: "O+" },
+  { name: "Chinju Vijith", bg: "O+" },
+  { name: "Deepa Arun", bg: "A+" },
+  { name: "Devadas K C", bg: "B+" },
+  { name: "Dhanesh K V", bg: "B+" },
+  { name: "Dines Babu", bg: "O+" },
+  { name: "Fahad P J", bg: "A+" },
+  { name: "Femin Jose", bg: "O+" },
+  { name: "Geeba Kannan", bg: "O−" },
+  { name: "Greeshma A G", bg: "A+" },
+  { name: "Harison N V", bg: "B+" },
+  { name: "Indulakshmi P Thilakan", bg: "O+" },
+  { name: "Jigineese Mohan", bg: "A+" },
+  { name: "Jigisha Vinod", bg: "B+" },
+  { name: "Jiji Prasanth", bg: "A+" },
+  { name: "Krishna Dev T A", bg: "B+" },
+  { name: "Krishnapriya K P", bg: "A+" },
+  { name: "Lini Anilkumar", bg: "—" },
+  { name: "Manju Biju", bg: "O+" },
+  { name: "Manju K N", bg: "A+" },
+  { name: "Maya Unnikrishnan", bg: "B+" },
+  { name: "Milandath P A", bg: "O−" },
+  { name: "Muhammed Farooq", bg: "O+ Bombay" },
+  { name: "Nafsal A A", bg: "AB+" },
+  { name: "Narendran V S", bg: "A+" },
+  { name: "Naseem E K", bg: "O+" },
+  { name: "Nazar Chiraparambil", bg: "O+" },
+  { name: "Nidheesh K V", bg: "B+" },
+  { name: "Niyas Chiraparambil", bg: "A+" },
+  { name: "Pradeep K P", bg: "O+" },
+  { name: "Pradeesh K R", bg: "O+" },
+  { name: "Pradeesh V P", bg: "A+" },
+  { name: "Pradosh K P", bg: "A+" },
+  { name: "Praji K R", bg: "O+" },
+  { name: "Prajith P T", bg: "B+" },
+  { name: "Pramod M S", bg: "O+" },
+  { name: "Pravi K R", bg: "O−" },
+  { name: "Premlal Thaiparambath", bg: "O+" },
+  { name: "Radhika Dinesh Babu", bg: "O+" },
+  { name: "Radhika V M", bg: "O+" },
+  { name: "Ragesh N R", bg: "O+" },
+  { name: "Rajeesh P S", bg: "O+" },
+  { name: "Ramjith N R", bg: "A+" },
+  { name: "Raneesh N R", bg: "O+" },
+  { name: "Ranji O R", bg: "O+" },
+  { name: "Rasiya Farook", bg: "—" },
+  { name: "Rasna Baburaj", bg: "B+" },
+  { name: "Ratheesh K V", bg: "B+" },
+  { name: "Reji T K", bg: "O+" },
+  { name: "Renjith Plakkal Ravi", bg: "O+" },
+  { name: "Rich Girish", bg: "AB+" },
+  { name: "Rinesh Nattuvetty", bg: "AB−" },
+  { name: "Rinosh Suresh", bg: "A+" },
+  { name: "Rishikesh K S", bg: "A+" },
+  { name: "Rohini Sumesh", bg: "O+" },
+  { name: "Sachin Karayil", bg: "O+" },
+  { name: "Sahira Banu Suresh Kumar", bg: "A+" },
+  { name: "Sajith K S", bg: "AB+" },
+  { name: "Sanad K D", bg: "O+" },
+  { name: "Sanil K Sathyan", bg: "A+" },
+  { name: "Sarath P S", bg: "A+" },
+  { name: "Sarath Plakkal Ravi", bg: "O+" },
+  { name: "Shanji Sajeevan", bg: "O+" },
+  { name: "Shejah Shafeer", bg: "B+" },
+  { name: "Shigin Mohan", bg: "AB+" },
+  { name: "Shiji Priyan", bg: "B+" },
+  { name: "Shijin", bg: "O+" },
+  { name: "Shine O S", bg: "O+" },
+  { name: "Shruthi K Ranjith", bg: "B+" },
+  { name: "Sibin M B", bg: "O+" },
+  { name: "Sibin V K", bg: "O+" },
+  { name: "Sijin V S", bg: "O+" },
+  { name: "Sindhu", bg: "—" },
+  { name: "Sindhu Pradosh Kumar", bg: "O+" },
+  { name: "Sona K S", bg: "O+" },
+  { name: "Soumya", bg: "O+" },
+  { name: "Soumya Sasi", bg: "O+" },
+  { name: "Sreeja Rajeesh", bg: "A+" },
+  { name: "Sreelakshmi V S", bg: "O+" },
+  { name: "Sruthy Premalal", bg: "O+" },
+  { name: "Subash Valliyil Gopalan", bg: "O+" },
+  { name: "Sudev V S", bg: "O+" },
+  { name: "Sujith Ramachandran", bg: "B+" },
+  { name: "Suresh K R", bg: "O+" },
+  { name: "Suvin V K", bg: "O+" },
+  { name: "Varsha Saji", bg: "—" },
+  { name: "Vidhya Nidheesh", bg: "—" },
+  { name: "Vijith Chandran", bg: "B+" },
+  { name: "Vijith Mohanan", bg: "O−" },
+  { name: "Vineetha Brijesh", bg: "B+" },
+  { name: "Vini Anilkumar", bg: "A+" },
+  { name: "Vipi N V", bg: "O+" },
+  { name: "Vishnu Prasad N S", bg: "O+" },
+  { name: "Vyshnav V S", bg: "AB+" },
+];
+
+function badgeClass(bg) {
+  if (bg === "—") return "bg-unknown";
+  if (bg.includes("Bombay")) return "bg-special";
+  if (bg.includes("−")) return "bg-neg";
+  return "bg-pos";
+}
+
+function normalise(bg) {
+  // map "A-" style to "A−" (minus vs en-dash) for comparison
+  return bg.replace(/-/g, "−");
+}
+
+function render(filter) {
+  const tbody = document.getElementById("tableBody");
+  const empty = document.getElementById("emptyState");
+  const table = document.getElementById("mainTable");
+  const badge = document.getElementById("filterBadge");
+  const count = document.getElementById("countDisplay");
+
+  const list = filter
+    ? members.filter(m => normalise(m.bg) === filter || m.bg === filter)
+    : members;
+
+  tbody.innerHTML = "";
+
+  if (list.length === 0) {
+    table.style.display = "none";
+    empty.style.display = "block";
+    count.textContent = "0";
+    badge.style.display = "inline";
+    badge.textContent = filter;
+  } else {
+    table.style.display = "table";
+    empty.style.display = "none";
+    count.textContent = list.length;
+    if (filter) {
+      badge.style.display = "inline";
+      badge.textContent = filter;
+    } else {
+      badge.style.display = "none";
+    }
+
+    list.forEach((m, i) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="sl">${i + 1}</td>
+        <td class="name-cell">${m.name}</td>
+        <td><span class="bg-badge ${badgeClass(m.bg)}">${m.bg}</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+}
+
+// Init
+render(null);
+
+// Filter on radio change
+document.getElementById("bgFilter").addEventListener("change", e => {
+  render(e.target.value);
+});
+
+// Reset
+document.getElementById("resetBtn").addEventListener("click", () => {
+  document.querySelectorAll('input[name="bg"]').forEach(r => r.checked = false);
+  render(null);
+});
+</script>
+</body>
+</html>
